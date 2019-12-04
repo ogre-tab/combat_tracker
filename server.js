@@ -161,11 +161,16 @@ app.get("/encounter/:encounterId", onGetEncounter);
 // get saved entities
 async function onGetEntities(req, res)
 {
-    // get our entity ids
-    const entities = req.body;
-    console.log(req.body);
-    // get all the entity ids
-    res.json("{\"stuff\": \"more stuff\"}");
+    // put our entity ids in an ObjectId array
+    let objIds = [];
+    req.body.entities.forEach(ent =>
+    {
+        objIds.push(ObjectId(ent));
+    });
+    // search the collection for any entities matching our ids
+    const entities = await entity_collection.find({_id: {$in:objIds}}).toArray();
+    // return all the found entities
+    res.json(JSON.stringify(entities));
 }
 app.post("/get/entities", jsonParser, onGetEntities);
 

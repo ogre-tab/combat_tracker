@@ -39,8 +39,20 @@
     <section class="main hidden" id="encounter-view">
       <fieldset>
         <legend id="encounter-legend"></legend>
-        <h1 id="encounter-header">Encounter</h1>
-        <table id="encounter-table"></table>
+        <table id="encounter-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Current HP</th>
+              <th>Max HP</th>
+              <th>Initiative Mod</th>
+              <th>Initiative</th>
+              <th>URL</th>
+            </tr>
+          </thead>
+          <tbody id="encounter-table-body"></tbody>
+        </table>
       </fieldset>
       <button>New Encounter</button>
       <button>Load Encounter</button>

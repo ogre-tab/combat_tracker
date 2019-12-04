@@ -39,7 +39,7 @@ class InitialView
             const selectElement = this.initialView.querySelector("#load-encounter-select");
             // parse our encounter objects
             this.encounters = JSON.parse(json);
-            console.log(this.encounters);
+            //console.log(this.encounters);
             // add each encounter to our select element
             this.encounters.forEach(enc =>
             {
@@ -61,7 +61,7 @@ class InitialView
         event.preventDefault();
         // get our id from the selected option
         const selected_id = this.loadEncounterSelect.options[this.loadEncounterSelect.selectedIndex].value;
-        console.log(selected_id)
+        //console.log(selected_id)
         // get our encounter from the encounters array using the selected id
         this.encounters.forEach(enc =>
         {
