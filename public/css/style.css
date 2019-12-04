@@ -1,0 +1,20 @@
+#create-form
+{
+    width: 300px;
+}
+
+#load-form
+{
+    width: 300px;
+}
+
+section.main
+{
+    width: 800px;
+    margin: auto;
+}
+
+.hidden
+{
+    display: none !important;
+}

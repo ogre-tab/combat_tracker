@@ -2,6 +2,26 @@
 // 12/02/2019
 // CS453 - Final Project
 
+// NOTES:
+
+// client needs to be able to create new encounters
+// start with the ui to create an encounter and add an entity
+
+// client sends the server the name of the encounter
+// server creates the encounter object and saves the object in mongo
+// the server sends the client the encounter object json
+
+// client needs a list of encounters
+// to load an encounter, the client will fetch("/getEncounterIds");
+// server will send an array of encounters
+// clicking the LOAD button will only get the encounters if the array is null
+// clicking the REFRESH button will get the encounter array again
+
+// to load a specific encounter
+// client will then fetch each entity_id in the selected encounter
+// client will fetch("/getEntityById", entity_id = [111, 222, 333]);
+// server will send jason data for each entity
+
 const express = require("express");
 const app = express();
 const mongodb = require("mongodb").MongoClient;
@@ -84,7 +104,7 @@ async function test_function()
 {
     test1 = new Encounter(ObjectId(), "test1");
     test1e = new Entity(ObjectId(), "test", 10, 10, 10, 5, 0, "url goes here");
-    //test1.addEntity(test1e._id)
+    test1.addEntity(test1e._id)
 
     console.log(JSON.stringify(test1))
     console.log(JSON.stringify(test1e))
@@ -104,24 +124,21 @@ async function startDbAndServer()
     // start the http server on our designated port
     app.listen(HTTP_PORT);
     console.log(`Started combat tracker server on port ${HTTP_PORT}.\nhttp://localhost:${HTTP_PORT}`);
-    test_function();
+    //test_function();
 };
 startDbAndServer();
 
-
-
-// NOTES:
-// client needs a list of encounters
-// to load an encounter, the client will fetch("/getEncounterIds");
-// server will send an array of encounters
-// clicking the LOAD button will only get the encounters if the array is null
-// clicking the REFRESH button will get the encounter array again
-
-// to load a specific encounter
-// client will then fetch each entity_id in the selected encounter
-// client will fetch("/getEntityById", entity_id = [111, 222, 333]);
-// server will send jason data for each entity
-
+// get a list of all saved encounters
+async function onGetAllEncounters(req, res)
+{
+    // get all the encounters
+    let encounters = await encounter_collection.find({}).toArray();
+    let encounters_json = JSON.stringify(encounters);
+    console.log("sent encounters to client");
+    // return the encounters
+    res.json(encounters_json);
+}
+app.get("/getEncounters", onGetAllEncounters);
 
 // load a saved encounter
 async function onGetEncounter(req, res)

@@ -1,14 +1,39 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-  <title></title>
-</head>
-
-<body>
-
-  <p>Hello, world!</p>
-
-</body>
-
+  <head>
+    <meta charset="utf-8">
+    <title>Encounters</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <!--<script src="/js/encounter-entity.js" defer></script>-->
+    <script src="/js/load-encounter-view.js" defer></script>
+    <script src="/js/initial-view.js" defer></script>
+    <script src="/js/app.js" defer></script>
+    <script src="/js/main.js" defer></script>
+  </head>
+  <body>
+    <!-- initial view -->
+    <section class="main" id="initial-container">
+      <h1>Create or load an encounter.</h1>
+      <section id="create-form">
+        <form>
+          <fieldset>
+            <legend>Create new encounter</legend>
+            <label>Name</label><br>
+              <input type="text" name="encounter-name" placeholder="My Encounter">
+            </label>
+            <button>Create</button>
+          </fieldset>
+        </form>
+      </section>
+      <section id="load-form">
+        <form>
+          <fieldset style="width: auto">
+            <legend>Load an existing encounter</legend>
+            <select size="10" name="load-encounter" id="load-encounter-select"></select><br>
+            <button>Load</button>
+          </fieldset>
+        </form>
+      </section>
+    </section>
+  </body>
 </html>
