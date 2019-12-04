@@ -5,21 +5,21 @@
     <title>Encounters</title>
     <link rel="stylesheet" href="/css/style.css">
     <!--<script src="/js/encounter-entity.js" defer></script>-->
-    <script src="/js/load-encounter-view.js" defer></script>
+    <script src="/js/encounter-view.js" defer></script>
     <script src="/js/initial-view.js" defer></script>
     <script src="/js/app.js" defer></script>
     <script src="/js/main.js" defer></script>
   </head>
   <body>
     <!-- initial view -->
-    <section class="main" id="initial-container">
+    <section class="main" id="initial-view">
       <h1>Create or load an encounter.</h1>
       <section id="create-form">
         <form>
           <fieldset>
             <legend>Create new encounter</legend>
             <label>Name</label><br>
-              <input type="text" name="encounter-name" placeholder="My Encounter">
+              <input type="text" name="new-encounter-name" placeholder="My Encounter">
             </label>
             <button>Create</button>
           </fieldset>
@@ -34,6 +34,16 @@
           </fieldset>
         </form>
       </section>
+    </section>
+    <!-- encounter view -->
+    <section class="main hidden" id="encounter-view">
+      <fieldset>
+        <legend id="encounter-legend"></legend>
+        <h1 id="encounter-header">Encounter</h1>
+        <table id="encounter-table"></table>
+      </fieldset>
+      <button>New Encounter</button>
+      <button>Load Encounter</button>
     </section>
   </body>
 </html>

@@ -23,7 +23,7 @@
 // server will send jason data for each entity
 
 const express = require("express");
-const app = express();
+const bodyParser = require('body-parser');
 const mongodb = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 
@@ -34,6 +34,11 @@ const ENCOUNTER_COLLECTION_NAME = "encounter";
 const ENTITY_COLLECTION_NAME = "entity";
 const MONGO_PORT = 27017;
 const MONGO_SERVER = "localhost";
+
+// create our express server
+const app = express();
+// create our parser for express requests
+const jsonParser = bodyParser.json();
 
 // use the public folder to store our webpages
 app.use(express.static("public"));
@@ -138,14 +143,31 @@ async function onGetAllEncounters(req, res)
     // return the encounters
     res.json(encounters_json);
 }
-app.get("/getEncounters", onGetAllEncounters);
+app.get("/get/encounters", onGetAllEncounters);
 
 // load a saved encounter
 async function onGetEncounter(req, res)
 {
-    // collection.findOne()
+    // create our id query
+    const query = {_id: req.params.encounterId};
+    // get the encounter by its id
+    const encounter = await encounter_collection.findOne(query);
+    const encounter_json = JSON.stringify(encounter);
+    // return our encounter
+    res.json(encounter_json);
 }
-//app.get("route", onGetEncounter);
+app.get("/encounter/:encounterId", onGetEncounter);
+
+// get saved entities
+async function onGetEntities(req, res)
+{
+    // get our entity ids
+    const entities = req.body;
+    console.log(req.body);
+    // get all the entity ids
+    res.json("{\"stuff\": \"more stuff\"}");
+}
+app.post("/get/entities", jsonParser, onGetEntities);
 
 // save an encounter
 async function onSaveEncounter(req, res)
