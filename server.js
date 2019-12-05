@@ -92,14 +92,13 @@ class Encounter
 // class to store an entity
 class Entity
 {
-    constructor(id, name, current_hit_points, max_hit_points, armor_class, initiative_modifier, initiative, url)
+    constructor(id, name, current_hp, max_hp, ac, initiative, url)
     {
         this._id = id;
         this.name = name;
-        this.current_hit_points = current_hit_points;
-        this.max_hit_points = max_hit_points;
-        this.armor_class = armor_class;
-        this.initiative_modifier = initiative_modifier;
+        this.current_hp = current_hp;
+        this.max_hp = max_hp;
+        this.ac = ac;
         this.initiative = initiative;
         this.url = url;
     }
@@ -138,10 +137,14 @@ async function onGetAllEncounters(req, res)
 {
     // get all the encounters
     let encounters = await encounter_collection.find({}).toArray();
+    // sort the array
+    encounters.sort((a, b) => (a.name.toLowerCase() > b.name.toLowerCase()) ? 1 : -1);
+    // serialize the encounters
     let encounters_json = JSON.stringify(encounters);
-    console.log("sent encounters to client");
     // return the encounters
     res.json(encounters_json);
+    // write to the log
+    console.log("sent all encounters to client");
 }
 app.get("/get/encounters", onGetAllEncounters);
 
@@ -155,6 +158,8 @@ async function onGetEncounter(req, res)
     const encounter_json = JSON.stringify(encounter);
     // return our encounter
     res.json(encounter_json);
+    // write to the log
+    console.log(`sent encounter '${encounter._id}' to client`);
 }
 app.get("/encounter/:encounterId", onGetEncounter);
 
@@ -171,8 +176,51 @@ async function onGetEntities(req, res)
     const entities = await entity_collection.find({_id: {$in:objIds}}).toArray();
     // return all the found entities
     res.json(JSON.stringify(entities));
+    // write to the log
+    console.log("sent entities to client");
 }
 app.post("/get/entities", jsonParser, onGetEntities);
+
+// create an encounter
+async function onCreateEncounter(req, res)
+{
+    // get the encounter name from the client
+    const name = req.body.name;
+    // create a mongodb id
+    const id = ObjectId();
+    // create the encounter object
+    const encounter = new Encounter(id, name);
+    // save the encounter in the mongodb
+    const result = await encounter_collection.insertOne(encounter);
+    // send the encounter to the client
+    res.json(JSON.stringify(encounter));
+    // write to the log
+    console.log(`created encounter '${encounter._id}' and sent to client`);
+}
+app.post("/create/encounter", jsonParser, onCreateEncounter);
+
+// delete an encounter
+async function onDeleteEncounter(req, res)
+{
+    // get the encounter name from the client
+    const id = req.body._id;
+    // create a query
+    const query = { _id: ObjectId(id) };
+    // save the encounter in the mongodb
+    const result = await encounter_collection.deleteOne(query).catch(err =>
+    {
+        // send the result to the client
+        Promise.reject({deleted: false});
+        // write to the log
+        console.log(`failed to deleted encounter '${id}' and notified client`);
+        return;
+    });
+    // send the result to the client
+    res.json(JSON.stringify({deleted: true}));
+    // write to the log
+    console.log(`deleted encounter '${id}' and notified client`);
+}
+app.post("/delete/encounter", jsonParser, onDeleteEncounter);
 
 // save an encounter
 async function onSaveEncounter(req, res)

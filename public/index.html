@@ -13,49 +13,70 @@
   <body>
     <!-- initial view -->
     <section class="main" id="initial-view">
-      <h1>Create or load an encounter.</h1>
+      <h1>Combat Tracker</h1>
       <section id="create-form">
         <form>
           <fieldset>
-            <legend>Create new encounter</legend>
+            <legend>Create a new encounter</legend>
             <label>Name</label><br>
-              <input type="text" name="new-encounter-name" placeholder="My Encounter">
+              <input type="text" id="initial-input-encounter" placeholder="My Encounter">
             </label>
-            <button>Create</button>
+            <button id="initial-button-create">Create</button>
           </fieldset>
         </form>
       </section>
+      <br>
       <section id="load-form">
         <form>
-          <fieldset style="width: auto">
-            <legend>Load an existing encounter</legend>
-            <select size="10" name="load-encounter" id="load-encounter-select"></select><br>
-            <button>Load</button>
+          <fieldset>
+            <legend>Encounters</legend>
+            <select size="10" id="initial-select-encounter"></select><br>
+            <button id="initial-button-load">Load</button>
+            <button id="initial-button-refresh">Refresh</button>
+            <button id="initial-button-delete">Delete</button>
           </fieldset>
         </form>
       </section>
     </section>
     <!-- encounter view -->
     <section class="main hidden" id="encounter-view">
-      <fieldset>
-        <legend id="encounter-legend"></legend>
-        <table id="encounter-table">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Name</th>
-              <th>Current HP</th>
-              <th>Max HP</th>
-              <th>Initiative Mod</th>
-              <th>Initiative</th>
-              <th>URL</th>
-            </tr>
-          </thead>
-          <tbody id="encounter-table-body"></tbody>
-        </table>
-      </fieldset>
-      <button>New Encounter</button>
-      <button>Load Encounter</button>
+      <section id="encounter-form">
+        <fieldset>
+          <legend id="encounter-legend"></legend>
+          <table id="encounter-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>AC</th>
+                <th>HP</th>
+                <th>Change HP</th>
+                <th>Init</th>
+                <th>URL</th>
+              </tr>
+            </thead>
+            <tbody id="encounter-table-body">
+            </tbody>
+          </table>
+          <br>
+          <button id="encounter-button-add-entity">Add Player or NPC</button>
+          <button id="encounter-button-change-encounter">Change Encounter</button>
+        </fieldset>
+      </section>
+    </section>
+    <!-- add entity view -->
+    <section class="main hidden" id="entity-view">
+      <section id="entity-form">
+        <fieldset>
+          <legend>Add new player or NPC</legend>
+          <label>Name</label><br>
+            <input type="text" name="new-encounter-name" id="new-encounter-input" placeholder="My Encounter">
+          </label>
+          <br>
+          <button>Add</button>
+          <button>Cancel</button>
+        </fieldset>
+      </section>
     </section>
   </body>
 </html>
