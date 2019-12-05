@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <title>Encounters</title>
     <link rel="stylesheet" href="/css/style.css">
-    <!--<script src="/js/encounter-entity.js" defer></script>-->
+    <script src="/js/entity-view.js" defer></script>
     <script src="/js/encounter-view.js" defer></script>
     <script src="/js/initial-view.js" defer></script>
     <script src="/js/app.js" defer></script>
@@ -14,7 +14,7 @@
     <!-- initial view -->
     <section class="main" id="initial-view">
       <h1>Combat Tracker</h1>
-      <section id="create-form">
+      <section id="create-encounter-form">
         <form>
           <fieldset>
             <legend>Create a new encounter</legend>
@@ -26,7 +26,7 @@
         </form>
       </section>
       <br>
-      <section id="load-form">
+      <section id="load-encounter-form">
         <form>
           <fieldset>
             <legend>Encounters</legend>
@@ -40,7 +40,7 @@
     </section>
     <!-- encounter view -->
     <section class="main hidden" id="encounter-view">
-      <section id="encounter-form">
+      <section id="manage-encounter-form">
         <fieldset>
           <legend id="encounter-legend"></legend>
           <table id="encounter-table">
@@ -68,14 +68,48 @@
     <section class="main hidden" id="entity-view">
       <section id="entity-form">
         <fieldset>
-          <legend>Add new player or NPC</legend>
-          <label>Name</label><br>
-            <input type="text" name="new-encounter-name" id="new-encounter-input" placeholder="My Encounter">
-          </label>
-          <br>
-          <button>Add</button>
-          <button>Cancel</button>
+          <legend>Add a new Player or NPC</legend>
+          <table>
+            <tr>
+              <td>
+                <label>Name</label><br>
+                  <input type="text" id="entity-input-name" placeholder="My Name">
+                </label>
+              </td>
+              <td>
+                <label>AC</label><br>
+                  <input type="number" min="0" max="99" class="small_input" id="entity-input-ac" placeholder="0">
+                </label>
+              </td>
+              <td>
+                <label>HP</label><br>
+                  <input type="number" min="0" max="999" class="small_input" id="entity-input-hp" placeholder="0">
+                </label>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <label>URL</label><br>
+                  <input type="text" id="entity-input-url" placeholder="My URL">
+                </label>
+              </td>
+            </tr>
+          </table>
+          <button id="entity-button-create">Create</button>
+          <button id="entity-button-cancel">Cancel</button>
         </fieldset>
+      </section>
+      <br>
+      <section id="load-entity-form">
+        <form>
+          <fieldset>
+            <legend>Add an existing Player or NPC</legend>
+            <select size="10" id="entity-select-entity"></select><br>
+            <button id="entity-button-add">Add</button>
+            <button id="entity-button-refresh">Refresh</button>
+            <button id="entity-button-delete">Delete</button>
+          </fieldset>
+        </form>
       </section>
     </section>
   </body>

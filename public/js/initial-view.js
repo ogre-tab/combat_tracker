@@ -11,7 +11,8 @@ class InitialView
         this.buttonDelete = document.querySelector("#initial-button-delete");
         this.selectLoadEncounter = document.querySelector("#initial-select-encounter");
         this.inputEncounterName = document.querySelector("#initial-input-encounter");
-        this.encounters = null;
+        this.objEncounterView = null;
+        this.encounters = {};
         this.selectedEncounter = null;
 
         // bind methods
@@ -33,8 +34,8 @@ class InitialView
     async _getEncounters()
     {
         // fetch the encounter data from the server
-        const encounters = await fetch("/get/encounters");
-        const json = await encounters.json();
+        const encounters_data = await fetch("/get/encounters");
+        const json = await encounters_data.json();
         // check if we got any encounters
         if (json.length === 0)
         {
@@ -45,9 +46,11 @@ class InitialView
             // clear our selected encounter
             this.selectedEncounter = null;
             // parse our encounter objects
-            this.encounters = JSON.parse(json);
+            const received_encounters = JSON.parse(json);
+            // clear our encounter dictionary
+            this.encounters = {};
             // add each encounter to our select element
-            this.encounters.forEach(enc =>
+            received_encounters.forEach(enc =>
             {
                 // create an option element
                 const option = document.createElement("option");
@@ -57,6 +60,8 @@ class InitialView
                 option.value = enc._id;
                 // add the option to our select
                 this.selectLoadEncounter.appendChild(option);
+                // add the encounter to our dictionary
+                this.encounters[enc._id] = enc;
             });
         }
     }
@@ -68,7 +73,7 @@ class InitialView
         // don't create an encounter if the name is empty
         if (this.inputEncounterName.value === "") return;
         // create our parameters by getting our encounter name
-        const params = {name: this.inputEncounterName.value}
+        const params = { name: this.inputEncounterName.value }
         // create our fetch options and add our parameters
         const fetchOptions =
         {
@@ -85,16 +90,25 @@ class InitialView
         const json = await result.json();
         // convert the json to objects
         const received_encounter = JSON.parse(json);
-        console.log(received_encounter);
         // hide our initial view
         this.initialView.classList.add("hidden");
-        // create our encounter view
-        const encounterView = new EncounterView(this.initialView, received_encounter);
+        // create or show our encounter view
+        if (this.objEncounterView === null)
+        {
+            // the view doesn't exist, so create it
+            this.objEncounterView = new EncounterView(this.initialView, received_encounter);
+        }
+        else
+        {
+            // the view already exists, so set our encounter and show the view
+            this.objEncounterView.setEncounter(received_encounter);
+            this.encounterView.classList.remove("hidden");
+        }
         // clear our options from our select
         this.selectLoadEncounter.innerHTML = "";
         // clear our create encounter name
         this.inputEncounterName.value = "";
-        // refresh our encounters list to get add the newly created encounter
+        // refresh our encounters list to add the newly created encounter
         this._getEncounters();
     }
 
@@ -108,18 +122,22 @@ class InitialView
         if (selection === undefined) return;
         // get our id from the selected option
         const selected_id = selection.value;
-        // get our encounter from the encounters array using the selected id
-        this.encounters.forEach(enc =>
-        {
-            if (enc._id === selected_id)
-            {
-                this.selectedEncounter = enc;
-            }
-        });
+        // get our encounter from the encounters dictionary using the selected id
+        this.selectedEncounter = this.encounters[selected_id];
         // hide our initial view
         this.initialView.classList.add("hidden");
-        // create our encounter view
-        const encounterView = new EncounterView(this.initialView, this.selectedEncounter);
+        // create or show our encounter view
+        if (this.objEncounterView === null)
+        {
+            // the view doesn't exist, so create it
+            this.objEncounterView = new EncounterView(this.initialView, this.selectedEncounter);
+        }
+        else
+        {
+            // the view already exists, so set our encounter and show the view
+            this.objEncounterView.setEncounter(this.selectedEncounter);
+            this.encounterView.classList.remove("hidden");
+        }
         // clear our selection
         this.selectLoadEncounter.selectedIndex = -1;
     }
@@ -145,7 +163,7 @@ class InitialView
         // get our id from the selected option
         const selected_id = selection.value;
         // create our parameters by getting our encounter name
-        const params = {_id: selected_id}
+        const params = { _id: selected_id }
         // create our fetch options and add our parameters
         const fetchOptions =
         {
@@ -163,7 +181,7 @@ class InitialView
         // get our result
         const delete_result = JSON.parse(json);
         // delete the encounter from the select if delete was successful
-        if (delete_result.deleted === true)
+        if (delete_result.done === true)
         {
             // remove the option from the select
             this.selectLoadEncounter.remove(this.selectLoadEncounter.selectedIndex);

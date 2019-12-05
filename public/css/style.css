@@ -1,25 +1,25 @@
-#create-form
+#create-encounter-form, #load-encounter-form
 {
-    width: 300px;
+    width: 314px;
 }
 
-#load-form
-{
-    width: 300px;
-}
-
-#encounter-form
+#manage-encounter-form
 {
     width: 700px;
 }
 
-#initial-select-encounter
+#entity-form, #load-entity-form
+{
+    width: 314px;
+}
+
+#initial-select-encounter, #entity-select-entity
 {
     width: 100%;
     height: 100%;
 }
 
-#initial-button-delete
+#initial-button-delete, #entity-button-delete
 {
     float: right;
 }
@@ -37,6 +37,12 @@
 #encounter-table tr td:nth-child(1), #encounter-table th:nth-child(1)
 {
     display: none;
+}
+
+#entity-input-url
+{
+    box-sizing: border-box;
+    width: 100%
 }
 
 section.main

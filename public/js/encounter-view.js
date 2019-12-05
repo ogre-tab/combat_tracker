@@ -12,12 +12,14 @@ class EncounterView
         this.buttonAddEntity = document.querySelector("#encounter-button-add-entity");
         this.buttonChangeEncounter = document.querySelector("#encounter-button-change-encounter");
         this.encounter = encounter;
+        this.objEntityView = null;
 
         // bind methods
         this._addHp = this._addHp.bind(this);
         this._removeHp = this._removeHp.bind(this);
         this._onAddEntity = this._onAddEntity.bind(this);
         this._onChangeEncounter = this._onChangeEncounter.bind(this);
+        this._createEntityRow = this._createEntityRow.bind(this);
 
         // event listeners
         this.buttonAddEntity.addEventListener("click", this._onAddEntity);
@@ -30,7 +32,7 @@ class EncounterView
     async _loadEncounterEntities()
     {
         // create our search parameters
-        const params = {entities: this.encounter.entities}
+        const params = { entities: this.encounter.entities }
         // create our fetch options and add our parameters
         const fetchOptions =
         {
@@ -49,7 +51,6 @@ class EncounterView
         const received_entities = JSON.parse(json);
         // update the form
         this.encounterLegend.textContent = `Encounter: ${this.encounter.name}`;
-        console.log(received_entities);
         received_entities.forEach(entity =>
         {
             this._createEntityRow(entity);
@@ -131,7 +132,7 @@ class EncounterView
         // create the remove button
         let button_remove = document.createElement("button");
         button_remove.textContent = "X";
-        button_remove.addEventListener("click", this._removeEntity);
+        button_remove.addEventListener("click", (event) => this._removeEntity(event, this.encounter));
         // add the button to the remove td
         td_remove.appendChild(button_remove);
 
@@ -152,7 +153,7 @@ class EncounterView
         this.encounterTableBody.appendChild(tr);
     }
 
-    _removeEntity(event)
+    async _removeEntity(event, encounter)
     {
         // get our table body
         const table = document.querySelector("#encounter-table");
@@ -160,9 +161,45 @@ class EncounterView
         const button = event.toElement;
         // get the row index of the clicked button
         const row_index = button.parentElement.parentNode.rowIndex;
-        // delete the row from the table
-        table.deleteRow(row_index);
-        console.log(`remove id: STUFF HERE`);
+        // get our entity id from the table
+        const entity_id = table.rows[row_index].cells[0].textContent;
+        // create our update parameters
+        const params =
+        {
+            encounter_id: encounter._id,
+            entity_id: entity_id
+        }
+        // create our fetch options and add our parameters
+        const fetchOptions =
+        {
+            method: "post",
+            headers:
+            {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(params)
+        };
+        // update the encounter on the server
+        const result = await fetch("/update/encounter/remove/entity", fetchOptions);
+        // get our result
+        const json = await result.json();
+        const update_result = JSON.parse(json);
+        // update our table if the encounter was updated
+        if (update_result.done === true)
+        {
+            // create a new array
+            const new_entities = [];
+            // add each id to the array that doesn't match our removed id
+            this.encounter.entities.forEach(ent_id =>
+            {
+                if (entity_id !== ent_id) new_entities.push(ent_id);
+            });
+            // put the new array in place
+            this.encounter.entities = new_entities;
+            // delete the row from the table
+            table.deleteRow(row_index);
+        }
     }
 
     _changeHpValue(button, mode)
@@ -228,6 +265,11 @@ class EncounterView
     {
         // hide our encounter view
         this.encounterView.classList.add("hidden");
+        // create our entity view
+        if (this.objEntityView === null)
+        {
+            this.objEntityView = new EntityView(this.entityView, this);
+        }
         // show our entity view
         this.entityView.classList.remove("hidden");
     }
@@ -244,5 +286,49 @@ class EncounterView
         this.encounterView.classList.add("hidden");
         // show our initial view
         this.initialView.classList.remove("hidden");
+    }
+
+    async addEntity(entity)
+    {
+        // if we already have this entity in our encounter, skip adding it
+        if (this.encounter.entities.includes(entity._id)) return;
+        // create our update parameters
+        const params =
+        {
+            encounter_id: this.encounter._id,
+            entity_id: entity._id
+        }
+        // create our fetch options and add our parameters
+        const fetchOptions =
+        {
+            method: "post",
+            headers:
+            {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(params)
+        };
+        // update the encounter on the server
+        const result = await fetch("/update/encounter/add/entity", fetchOptions);
+        // get our result
+        const json = await result.json();
+        const update_result = JSON.parse(json);
+        // update our table if the encounter was updated
+        if (update_result.done === true)
+        {
+            // add the entity to the entity array in the encounter
+            this.encounter.entities.push(entity._id);
+            // add the entity to the table
+            this._createEntityRow(entity)
+        }
+    }
+
+    setEncounter(encounter)
+    {
+        // set our encounter
+        this.encounter = encounter;
+        // and load the required entities
+        this._loadEncounterEntities();
     }
 }
