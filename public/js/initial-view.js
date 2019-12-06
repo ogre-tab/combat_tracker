@@ -34,7 +34,7 @@ class InitialView
     async _getEncounters()
     {
         // fetch the encounter data from the server
-        const encounters_data = await fetch("/get/encounters");
+        const encounters_data = await fetch("/get/encounters", { method: "GET" });
         const json = await encounters_data.json();
         // check if we got any encounters
         if (json.length === 0)
@@ -77,7 +77,7 @@ class InitialView
         // create our fetch options and add our parameters
         const fetchOptions =
         {
-            method: "post",
+            method: "POST",
             headers:
             {
                 "Accept": "application/json",
@@ -163,7 +163,7 @@ class InitialView
         // get our id from the selected option
         const selected_id = selection.value;
         // get the entities from the server
-        const result = await fetch(`/delete/encounter/${selected_id}`);
+        const result = await fetch(`/delete/encounter/${selected_id}`, { method: "DELETE" });
         const json = await result.json();
         // get our result
         const delete_result = JSON.parse(json);

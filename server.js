@@ -4,19 +4,6 @@
 
 // NOTES:
 // possibly remove the refresh buttons from the initial-view and entity-view
-// add code to delete an entity on entity-view
-
-// check if the prevent default for events is required
-// if not needed, remove from all classes
-
-// TODO:
-// need to add functionality to push hp and initiative changes to the server
-// need to sort the table by the initiative order
-// use update button, or add event for changes, if chang events are used, remove the update buttons
-// change the name to be a url and hide the url column
-// maybe add a way to modify an existing entity
-// add code to create collections when server starts
-// maybe create the db is one is not found?
 
 const express = require("express");
 const bodyParser = require('body-parser');
@@ -100,19 +87,6 @@ class Entity
     }
 }
 
-async function test_function()
-{
-    test1 = new Encounter(ObjectId(), "test1");
-    test1e = new Entity(ObjectId(), "test", 10, 10, 10, 5, 0, "url goes here");
-    test1.addEntity(test1e._id)
-
-    console.log(JSON.stringify(test1))
-    console.log(JSON.stringify(test1e))
-
-    result1 = await encounter_collection.updateOne({ _id: test1._id }, { $set: test1 }, { upsert: true });
-    result1e = await entity_collection.updateOne({ _id: test1e._id }, { $set: test1e }, { upsert: true });
-}
-
 // start our webserver and connect to our mongo database
 async function startDbAndServer()
 {
@@ -125,7 +99,6 @@ async function startDbAndServer()
     // start the http server on our designated port
     app.listen(HTTP_PORT);
     console.log(`Started combat tracker server on port ${HTTP_PORT}.\nhttp://localhost:${HTTP_PORT}`);
-    //test_function();
 };
 startDbAndServer();
 
@@ -187,7 +160,7 @@ async function onDeleteEncounter(req, res)
     // write to the log
     console.log(`deleted encounter '${id}' and notified client`);
 }
-app.get("/delete/encounter/:encounterId", onDeleteEncounter);
+app.delete("/delete/encounter/:encounterId", onDeleteEncounter);
 
 // get a list of all saved entities
 async function onGetAllEntities(req, res)
@@ -216,7 +189,7 @@ async function onCreateEntity(req, res)
     // create a mongodb id
     const id = ObjectId();
     // create the encounter object
-    const entity = new Entity(id, name, hp, hp, ac, 0, url);
+    const entity = new Entity(id, name, hp, hp, ac, "", url);
     // save the encounter in the mongo db
     const result = await entity_collection.insertOne(entity);
     // send the encounter to the client
@@ -242,7 +215,7 @@ async function onAddEntityToEncounter(req, res)
     // write to the log
     console.log(`added entity '${entity_id}' to encounter '${encounter_id}' and notified client`);
 }
-app.get("/update/encounter/:encounterId/add/entity/:entityId", onAddEntityToEncounter);
+app.post("/update/encounter/:encounterId/add/entity/:entityId", onAddEntityToEncounter);
 
 // remove an entity to an encounter
 async function onRemoveEntityFromEncounter(req, res)
@@ -260,7 +233,7 @@ async function onRemoveEntityFromEncounter(req, res)
     // write to the log
     console.log(`removed entity '${entity_id}' from encounter '${encounter_id}' and notified client`);
 }
-app.get("/update/encounter/:encounterId/remove/entity/:entityId", onRemoveEntityFromEncounter);
+app.post("/update/encounter/:encounterId/remove/entity/:entityId", onRemoveEntityFromEncounter);
 
 // delete an entity
 async function onDeleteEntity(req, res)
@@ -274,4 +247,24 @@ async function onDeleteEntity(req, res)
     // write to the log
     console.log(`deleted entity '${id}' and notified client`);
 }
-app.get("/delete/entity/:entityId", onDeleteEntity);
+app.delete("/delete/entity/:entityId", onDeleteEntity);
+
+// update an entity
+async function onUpdateEntity(req, res)
+{
+    // get the entity values from the client
+    const id = ObjectId(req.params.entityId);
+    const hp = req.params.hp;
+    const init = req.params.init;
+    // create a query
+    const query = { _id: id }
+    // create an update
+    const update = { $set: { current_hp: hp, initiative: init } }
+    // save the encounter in the mongo db
+    const result = await entity_collection.updateOne(query, update);
+    // send the result to the client
+    res.json(JSON.stringify({done: true}));
+    // write to the log
+    console.log(`updated entity '${id}' hp (${hp}) initiative (${init}) and notified client`);
+}
+app.post("/update/entity/:entityId/hp/:hp/init/:init", onUpdateEntity);

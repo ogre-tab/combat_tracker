@@ -39,7 +39,7 @@ class EntityView
     async _getEntities()
     {
         // fetch the entity data from the server
-        const entities = await fetch("/get/entities");
+        const entities = await fetch("/get/entities", { method: "GET" });
         const json = await entities.json();
         // check if we got any encounters
         if (json.length === 0)
@@ -75,17 +75,15 @@ class EntityView
 
     async _onCreateEntity(event)
     {
-        // we will handle this event, so stop the default handling
-        event.preventDefault();
         // don't create an entity if the name is empty
         if (this.inputEntityName.value === "") return;
         // update our ac and hp values
         let ac = this.inputEntityAc.value;
-        let hp = this.inputEntityAc.value;
+        let hp = this.inputEntityHp.value;
         if (ac > 99) ac = 99;
         if (ac < 0) ac = 0;
-        if (hp > 999) ac = 999;
-        if (hp < 0) ac = 0;
+        if (hp > 999) hp = 999;
+        if (hp < 0) hp = 0;
         // create our parameters by getting our entity values
         const params =
         {
@@ -97,7 +95,7 @@ class EntityView
         // create our fetch options and add our parameters
         const fetchOptions =
         {
-            method: "post",
+            method: "POST",
             headers:
             {
                 "Accept": "application/json",
@@ -129,8 +127,6 @@ class EntityView
 
     _onAddEntity(event, entities)
     {
-        // we will handle this event, so stop the default handling
-        event.preventDefault();
         // get our selection
         const selection = this.selectAddEntity.options[this.selectAddEntity.selectedIndex];
         // check that we have something selected
@@ -152,7 +148,7 @@ class EntityView
     _onRefreshEntities(event)
     {
         // we will handle this event, so stop the default handling
-        event.preventDefault();
+        //event.preventDefault();
         // clear our options from our select
         this.selectAddEntity.innerHTML = "";
         // get our encounter list
@@ -161,8 +157,6 @@ class EntityView
 
     async _onDeleteEntity(event)
     {
-        // we will handle this event, so stop the default handling
-        event.preventDefault();
         // get our selection
         const selection = this.selectAddEntity.options[this.selectAddEntity.selectedIndex];
         // check that we have something selected
@@ -170,7 +164,7 @@ class EntityView
         // get our id from the selected option
         const selected_id = selection.value;
         // get the entities from the server
-        const result = await fetch(`/delete/entity/${selected_id}`);
+        const result = await fetch(`/delete/entity/${selected_id}`, { method: "DELETE" });
         const json = await result.json();
         // get our result
         const delete_result = JSON.parse(json);

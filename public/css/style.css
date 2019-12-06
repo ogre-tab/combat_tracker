@@ -1,14 +1,14 @@
-#create-encounter-form, #load-encounter-form
+#create-encounter-section, #load-encounter-section
 {
     width: 314px;
 }
 
-#manage-encounter-form
+#manage-encounter-section
 {
     width: 700px;
 }
 
-#entity-form, #load-entity-form
+#entity-section, #load-entity-section
 {
     width: 314px;
 }
@@ -45,6 +45,11 @@
     width: 100%
 }
 
+#encounter-button-sort
+{
+    font-weight: bold;
+}
+
 section.main
 {
     width: 800px;
@@ -61,6 +66,11 @@ section.main
     width: 50px;
 }
 
+.entity-remove-button
+{
+    margin-left: 20px;
+}
+
 .hidden
 {
     display: none !important;
@@ -71,7 +81,24 @@ legend
     font-weight: bold;
 }
 
-table, th, td
+tr
 {
-    border: 1px solid black;
+    border: 2px solid black;
+}
+
+th
+{
+    border-style: hidden;
+    border-bottom: 2px solid black;
+}
+
+td
+{
+    padding: 5px;
+    align-content: center;
+}
+
+table
+{
+    border-collapse: collapse;
 }

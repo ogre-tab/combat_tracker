@@ -14,33 +14,29 @@
     <!-- initial view -->
     <section class="main" id="initial-view">
       <h1>Combat Tracker</h1>
-      <section id="create-encounter-form">
-        <form>
-          <fieldset>
-            <legend>Create a new encounter</legend>
-            <label>Name</label><br>
-              <input type="text" id="initial-input-encounter" placeholder="My Encounter">
-            </label>
-            <button id="initial-button-create">Create</button>
-          </fieldset>
-        </form>
+      <section id="create-encounter-section">
+        <fieldset>
+          <legend>Create a new encounter</legend>
+          <label>Name</label><br>
+            <input type="text" id="initial-input-encounter" placeholder="My Encounter">
+          </label>
+          <button id="initial-button-create">Create</button>
+        </fieldset>
       </section>
       <br>
-      <section id="load-encounter-form">
-        <form>
-          <fieldset>
-            <legend>Encounters</legend>
-            <select size="10" id="initial-select-encounter"></select><br>
-            <button id="initial-button-load">Load</button>
-            <button id="initial-button-refresh">Refresh</button>
-            <button id="initial-button-delete">Delete</button>
-          </fieldset>
-        </form>
+      <section id="load-encounter-section">
+        <fieldset>
+          <legend>Encounters</legend>
+          <select size="10" id="initial-select-encounter"></select><br>
+          <button id="initial-button-load">Load</button>
+          <button id="initial-button-refresh">Refresh</button>
+          <button id="initial-button-delete">Delete</button>
+        </fieldset>
       </section>
     </section>
     <!-- encounter view -->
     <section class="main hidden" id="encounter-view">
-      <section id="manage-encounter-form">
+      <section id="manage-encounter-section">
         <fieldset>
           <legend id="encounter-legend"></legend>
           <table id="encounter-table">
@@ -51,8 +47,9 @@
                 <th>AC</th>
                 <th>HP</th>
                 <th>Change HP</th>
-                <th>Init</th>
-                <th>URL</th>
+                <th>
+                  <button id="encounter-button-sort">Init</button>
+                </th>
               </tr>
             </thead>
             <tbody id="encounter-table-body">
@@ -66,7 +63,7 @@
     </section>
     <!-- add entity view -->
     <section class="main hidden" id="entity-view">
-      <section id="entity-form">
+      <section id="entity-section">
         <fieldset>
           <legend>Add a new Player or NPC</legend>
           <table>
@@ -100,16 +97,14 @@
         </fieldset>
       </section>
       <br>
-      <section id="load-entity-form">
-        <form>
-          <fieldset>
-            <legend>Add an existing Player or NPC</legend>
-            <select size="10" id="entity-select-entity"></select><br>
-            <button id="entity-button-add">Add</button>
-            <button id="entity-button-refresh">Refresh</button>
-            <button id="entity-button-delete">Delete</button>
-          </fieldset>
-        </form>
+      <section id="load-entity-section">
+        <fieldset>
+          <legend>Add an existing Player or NPC</legend>
+          <select size="10" id="entity-select-entity"></select><br>
+          <button id="entity-button-add">Add</button>
+          <button id="entity-button-refresh">Refresh</button>
+          <button id="entity-button-delete">Delete</button>
+        </fieldset>
       </section>
     </section>
   </body>

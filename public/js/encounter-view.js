@@ -11,6 +11,7 @@ class EncounterView
         this.encounterLegend = document.querySelector("#encounter-legend");
         this.buttonAddEntity = document.querySelector("#encounter-button-add-entity");
         this.buttonChangeEncounter = document.querySelector("#encounter-button-change-encounter");
+        this.buttonSort = document.querySelector("#encounter-button-sort");
         this.encounter = encounter;
         this.objEntityView = null;
 
@@ -20,10 +21,13 @@ class EncounterView
         this._onAddEntity = this._onAddEntity.bind(this);
         this._onChangeEncounter = this._onChangeEncounter.bind(this);
         this._createEntityRow = this._createEntityRow.bind(this);
+        this._onSortEncounter = this._onSortEncounter.bind(this);
+        this._onUpdateEntity = this._onUpdateEntity.bind(this);
 
         // event listeners
         this.buttonAddEntity.addEventListener("click", this._onAddEntity);
         this.buttonChangeEncounter.addEventListener("click", this._onChangeEncounter);
+        this.buttonSort.addEventListener("click", this._onSortEncounter);
 
         // load the encounter into a table
         this._loadEncounterEntities();
@@ -39,7 +43,7 @@ class EncounterView
             // get our id from the array
             const entity_id = this.encounter.entities[index];
             // get the entity from the server
-            const result = await fetch(`/get/entity/${entity_id}`);
+            const result = await fetch(`/get/entity/${entity_id}`, { method: "GET" });
             const json = await result.json();
             // convert the json to an object
             const received_entity = JSON.parse(json);
@@ -104,27 +108,37 @@ class EncounterView
         input_initiative.setAttribute("min", "0");
         input_initiative.setAttribute("max", "99");
         input_initiative.setAttribute("class", "small_input");
-        input_initiative.value = entity.initiative;
+        input_initiative.setAttribute("placeholder", "0");
+        // only set our initiative if it is a number
+        const init = parseInt(entity.initiative)
+        if (isNaN(init))
+        {
+            input_initiative.value = "";
+        }
+        else
+        {
+            input_initiative.value = init;
+        }
+        // add our event listener
+        input_initiative.addEventListener("change", this._onUpdateEntity);
         // add the input to the initiative td
         td_initiative.appendChild(input_initiative);
 
         // url
         let td_url = document.createElement("td");
-        td_url.appendChild(document.createTextNode(entity.url));
-
-        // update
-        let td_update = document.createElement("td");
-        // create the update button
-        let button_update = document.createElement("button");
-        button_update.textContent = "Update";
-        // add the button to the update td
-        td_update.appendChild(button_update);
+        // create a link for our url
+        let anchor = document.createElement("a");
+        anchor.setAttribute("target", "_blank");
+        anchor.appendChild(document.createTextNode("link"));
+        anchor.href = entity.url;
+        td_url.appendChild(anchor);
 
         // remove
         let td_remove = document.createElement("td");
         // create the remove button
         let button_remove = document.createElement("button");
         button_remove.textContent = "X";
+        button_remove.setAttribute("class", "entity-remove-button");
         button_remove.addEventListener("click", (event) => this._removeEntity(event, this.encounter));
         // add the button to the remove td
         td_remove.appendChild(button_remove);
@@ -139,7 +153,6 @@ class EncounterView
         tr.appendChild(td_change_hp);
         tr.appendChild(td_initiative);
         tr.appendChild(td_url);
-        tr.appendChild(td_update);
         tr.appendChild(td_remove);
 
         // finally, add our tr to our table
@@ -157,7 +170,7 @@ class EncounterView
         // get our entity id from the table
         const entity_id = table.rows[row_index].cells[0].textContent;
         // update the encounter on the server
-        const result = await fetch(`/update/encounter/${encounter._id}/remove/entity/${entity_id}`);
+        const result = await fetch(`/update/encounter/${encounter._id}/remove/entity/${entity_id}`,  { method: "POST" });
         // get our result
         const json = await result.json();
         const update_result = JSON.parse(json);
@@ -229,12 +242,16 @@ class EncounterView
     {
         // add hp to our entity
         this._changeHpValue(event.toElement, "add");
+        // update the entity on the server
+        this._onUpdateEntity(event);
     }
 
     _removeHp(event)
     {
         // remove hp from our entity
         this._changeHpValue(event.toElement, "remove");
+        // update the entity on the server
+        this._onUpdateEntity(event);
     }
 
     _onAddEntity(event)
@@ -269,7 +286,7 @@ class EncounterView
         // if we already have this entity in our encounter, skip adding it
         if (this.encounter.entities.includes(entity._id)) return;
         // update the encounter on the server
-        const result = await fetch(`/update/encounter/${this.encounter._id}/add/entity/${entity._id}`);
+        const result = await fetch(`/update/encounter/${this.encounter._id}/add/entity/${entity._id}`, { method: "POST" });
         // get our result
         const json = await result.json();
         const update_result = JSON.parse(json);
@@ -289,5 +306,48 @@ class EncounterView
         this.encounter = encounter;
         // and load the required entities
         this._loadEncounterEntities();
+    }
+
+    _onSortEncounter(event)
+    {
+        // create an array to store our rows
+        const table_rows = [];
+        // add all our rows to the array
+        const children = this.encounterTableBody.children;
+        for (let index = 0; index < children.length; index++)
+        {
+            table_rows.push(children[index]);
+        }
+        // sort the array based on the initiative input
+        table_rows.sort((a, b) => (parseInt(a.cells[5].children[0].value) >= parseInt(b.cells[5].children[0].value)) ? 1 : -1);
+        // add the array tr back into the table in the sorted order
+        table_rows.forEach(row =>
+        {
+            this.encounterTableBody.appendChild(row);
+        });
+    }
+
+    async _onUpdateEntity(event)
+    {
+        // get our element that triggered the event
+        const element = event.srcElement;
+        // get our table
+        const table = document.querySelector("#encounter-table");
+        // get the row index of the element
+        const row_index = element.parentElement.parentNode.rowIndex;
+        // get our id
+        const id = table.rows[row_index].cells[0].textContent;
+        // get our hp values
+        const full_hp = table.rows[row_index].cells[3].textContent.split("/");
+        let current_hp = parseInt(full_hp[0]);
+        // get our initiative
+        const init = parseInt(table.rows[row_index].cells[5].children[0].value);
+        // stop if our hp or initiative is not a number
+        if (isNaN(current_hp) || isNaN(init)) return;
+        // update the entity on the server
+        const result = await fetch(`/update/entity/${id}/hp/${current_hp}/init/${init}`, { method: "POST" });
+        // get our result
+        const json = await result.json();
+        const update_result = JSON.parse(json);
     }
 }
