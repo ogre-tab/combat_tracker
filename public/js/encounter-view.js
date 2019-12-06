@@ -31,30 +31,23 @@ class EncounterView
 
     async _loadEncounterEntities()
     {
-        // create our search parameters
-        const params = { entities: this.encounter.entities }
-        // create our fetch options and add our parameters
-        const fetchOptions =
-        {
-            method: "post",
-            headers:
-            {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(params)
-        };
-        // get the entities from the server
-        const result = await fetch("/get/entities", fetchOptions);
-        const json = await result.json();
-        // convert the json to objects
-        const received_entities = JSON.parse(json);
         // update the form
         this.encounterLegend.textContent = `Encounter: ${this.encounter.name}`;
-        received_entities.forEach(entity =>
+        // get our entities from the server
+        for (let index = 0; index < this.encounter.entities.length; index++)
         {
-            this._createEntityRow(entity);
-        });
+            // get our id from the array
+            const entity_id = this.encounter.entities[index];
+            // get the entity from the server
+            const result = await fetch(`/get/entity/${entity_id}`);
+            const json = await result.json();
+            // convert the json to an object
+            const received_entity = JSON.parse(json);
+            // check if our entity is null
+            if (received_entity === null) continue;
+            // add the entity to the encounter table
+            this._createEntityRow(received_entity);
+        }
         // show our encounter view
         this.encounterView.classList.remove("hidden");
     }
@@ -163,25 +156,8 @@ class EncounterView
         const row_index = button.parentElement.parentNode.rowIndex;
         // get our entity id from the table
         const entity_id = table.rows[row_index].cells[0].textContent;
-        // create our update parameters
-        const params =
-        {
-            encounter_id: encounter._id,
-            entity_id: entity_id
-        }
-        // create our fetch options and add our parameters
-        const fetchOptions =
-        {
-            method: "post",
-            headers:
-            {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(params)
-        };
         // update the encounter on the server
-        const result = await fetch("/update/encounter/remove/entity", fetchOptions);
+        const result = await fetch(`/update/encounter/${encounter._id}/remove/entity/${entity_id}`);
         // get our result
         const json = await result.json();
         const update_result = JSON.parse(json);
@@ -292,25 +268,8 @@ class EncounterView
     {
         // if we already have this entity in our encounter, skip adding it
         if (this.encounter.entities.includes(entity._id)) return;
-        // create our update parameters
-        const params =
-        {
-            encounter_id: this.encounter._id,
-            entity_id: entity._id
-        }
-        // create our fetch options and add our parameters
-        const fetchOptions =
-        {
-            method: "post",
-            headers:
-            {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(params)
-        };
         // update the encounter on the server
-        const result = await fetch("/update/encounter/add/entity", fetchOptions);
+        const result = await fetch(`/update/encounter/${this.encounter._id}/add/entity/${entity._id}`);
         // get our result
         const json = await result.json();
         const update_result = JSON.parse(json);

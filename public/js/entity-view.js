@@ -169,21 +169,8 @@ class EntityView
         if (selection === undefined) return;
         // get our id from the selected option
         const selected_id = selection.value;
-        // create our parameters by getting our encounter name
-        const params = { _id: selected_id }
-        // create our fetch options and add our parameters
-        const fetchOptions =
-        {
-            method: "post",
-            headers:
-            {
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(params)
-        };
         // get the entities from the server
-        const result = await fetch("/delete/entity", fetchOptions);
+        const result = await fetch(`/delete/entity/${selected_id}`);
         const json = await result.json();
         // get our result
         const delete_result = JSON.parse(json);

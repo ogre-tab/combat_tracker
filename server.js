@@ -15,6 +15,8 @@
 // use update button, or add event for changes, if chang events are used, remove the update buttons
 // change the name to be a url and hide the url column
 // maybe add a way to modify an existing entity
+// add code to create collections when server starts
+// maybe create the db is one is not found?
 
 const express = require("express");
 const bodyParser = require('body-parser');
@@ -117,6 +119,7 @@ async function startDbAndServer()
     // set database and collection before server starts
     let client = await mongodb.connect(MONGO_URL, {useUnifiedTopology: true});
     db = client.db(DB_NAME);
+    // set our collection variables
     encounter_collection = db.collection(ENCOUNTER_COLLECTION_NAME);
     entity_collection = db.collection(ENTITY_COLLECTION_NAME);
     // start the http server on our designated port
@@ -142,23 +145,17 @@ async function onGetAllEncounters(req, res)
 }
 app.get("/get/encounters", onGetAllEncounters);
 
-// get saved entities
-async function onGetEntities(req, res)
+// get a saved entity
+async function onGetEntity(req, res)
 {
-    // put our entity ids in an ObjectId array
-    let objIds = [];
-    req.body.entities.forEach(ent =>
-    {
-        objIds.push(ObjectId(ent));
-    });
-    // search the collection for any entities matching our ids
-    const entities = await entity_collection.find({ _id: { $in: objIds } }).toArray();
-    // return all the found entities
-    res.json(JSON.stringify(entities));
+    // search the collection for matching entity
+    const entity = await entity_collection.findOne({ _id: ObjectId(req.params.entityId) });
+    // return the found entity
+    res.json(JSON.stringify(entity));
     // write to the log
-    console.log("sent requested entities to client");
+    console.log(`sent entity '${req.params.entityId}' to client`);
 }
-app.post("/get/entities", jsonParser, onGetEntities);
+app.get("/get/entity/:entityId", onGetEntity);
 
 // create an encounter
 async function onCreateEncounter(req, res)
@@ -182,17 +179,15 @@ app.post("/create/encounter", jsonParser, onCreateEncounter);
 async function onDeleteEncounter(req, res)
 {
     // get the encounter name from the client
-    const id = req.body._id;
-    // create a query
-    const query = { _id: ObjectId(id) };
+    const id = req.params.encounterId;
     // save the encounter in the mongo db
-    const result = await encounter_collection.deleteOne(query);
+    const result = await encounter_collection.deleteOne({ _id: ObjectId(id) });
     // send the result to the client
     res.json(JSON.stringify({done: true}));
     // write to the log
     console.log(`deleted encounter '${id}' and notified client`);
 }
-app.post("/delete/encounter", jsonParser, onDeleteEncounter);
+app.get("/delete/encounter/:encounterId", onDeleteEncounter);
 
 // get a list of all saved entities
 async function onGetAllEntities(req, res)
@@ -235,8 +230,8 @@ app.post("/create/entity", jsonParser, onCreateEntity);
 async function onAddEntityToEncounter(req, res)
 {
     // get the entity id and encounter id from the client
-    const encounter_id = req.body.encounter_id;
-    const entity_id = req.body.entity_id;
+    const encounter_id = req.params.encounterId;
+    const entity_id = req.params.entityId;
     // create our query and update value
     const query = { _id: ObjectId(encounter_id) };
     const update_value = { $push: {entities: entity_id} };
@@ -247,14 +242,14 @@ async function onAddEntityToEncounter(req, res)
     // write to the log
     console.log(`added entity '${entity_id}' to encounter '${encounter_id}' and notified client`);
 }
-app.post("/update/encounter/add/entity", jsonParser, onAddEntityToEncounter);
+app.get("/update/encounter/:encounterId/add/entity/:entityId", onAddEntityToEncounter);
 
 // remove an entity to an encounter
 async function onRemoveEntityFromEncounter(req, res)
 {
     // get the entity id and encounter id from the client
-    const encounter_id = req.body.encounter_id;
-    const entity_id = req.body.entity_id;
+    const encounter_id = req.params.encounterId;
+    const entity_id = req.params.entityId;
     // create our query and update value
     const query = { _id: ObjectId(encounter_id) };
     const update_value = { $pull: {entities: entity_id} };
@@ -265,20 +260,18 @@ async function onRemoveEntityFromEncounter(req, res)
     // write to the log
     console.log(`removed entity '${entity_id}' from encounter '${encounter_id}' and notified client`);
 }
-app.post("/update/encounter/remove/entity", jsonParser, onRemoveEntityFromEncounter);
+app.get("/update/encounter/:encounterId/remove/entity/:entityId", onRemoveEntityFromEncounter);
 
 // delete an entity
 async function onDeleteEntity(req, res)
 {
     // get the encounter name from the client
-    const id = req.body._id;
-    // create a query
-    const query = { _id: ObjectId(id) };
+    const id = req.params.entityId;
     // save the encounter in the mongo db
-    const result = await entity_collection.deleteOne(query);
+    const result = await entity_collection.deleteOne({ _id: ObjectId(id) });
     // send the result to the client
     res.json(JSON.stringify({done: true}));
     // write to the log
     console.log(`deleted entity '${id}' and notified client`);
 }
-app.post("/delete/entity", jsonParser, onDeleteEntity);
+app.get("/delete/entity/:entityId", onDeleteEntity);
