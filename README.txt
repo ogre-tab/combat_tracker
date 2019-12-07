@@ -1,5 +1,3 @@
-# combat_tracker
-
 Trenton Bodenner
 12/02/2019
 CS453 - Final Project
@@ -37,4 +35,3 @@ Also, characters can be deleted permanently from this screen.
 Once an encounter has been setup, add initiative values or change hit point (hp) values.
 Pressing the Init button will sort the encounter by the initiative values.
 Changes to hp or initiative will automatically save the character.
-

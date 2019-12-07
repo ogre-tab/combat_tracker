@@ -1,3 +1,7 @@
+// Trenton Bodenner
+// 12/02/2019
+// CS453 - Final Project
+
 class EncounterView
 {
     constructor(containerElement, encounter)
@@ -52,6 +56,8 @@ class EncounterView
             // add the entity to the encounter table
             this._createEntityRow(received_entity);
         }
+        // sort the encounter
+        this._onSortEncounter(null);
         // show our encounter view
         this.encounterView.classList.remove("hidden");
     }
@@ -319,7 +325,7 @@ class EncounterView
             table_rows.push(children[index]);
         }
         // sort the array based on the initiative input
-        table_rows.sort((a, b) => (parseInt(a.cells[5].children[0].value) >= parseInt(b.cells[5].children[0].value)) ? 1 : -1);
+        table_rows.sort((a, b) => (parseInt(a.cells[5].children[0].value) <= parseInt(b.cells[5].children[0].value)) ? 1 : -1);
         // add the array tr back into the table in the sorted order
         table_rows.forEach(row =>
         {

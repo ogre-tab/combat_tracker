@@ -2,11 +2,8 @@
 // 12/02/2019
 // CS453 - Final Project
 
-// NOTES:
-// possibly remove the refresh buttons from the initial-view and entity-view
-
 const express = require("express");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 const mongodb = require("mongodb").MongoClient;
 const ObjectId = require("mongodb").ObjectId;
 
